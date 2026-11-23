@@ -1,0 +1,21 @@
+node_modules/
+dist/
+.turbo/
+coverage/
+*.log
+.env
+.env.*
+!.env.example
+# Expo
+.expo/
+apps/app/dist/
+apps/app/web-build/
+apps/app/ios/
+apps/app/android/
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+# macOS
+.DS_Store
