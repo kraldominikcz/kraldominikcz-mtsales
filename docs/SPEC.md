@@ -5,7 +5,7 @@
 
 | | |
 |---|---|
-| Verze specifikace | 0.4 (schváleno, začíná vývoj fáze 1) |
+| Verze specifikace | 0.5 (návrh napojení na Merk.cz) |
 | Stav | Schváleno – architektura, pravidla disciplíny, automatické follow-upy |
 | Vlastník | manageTOGETHER s.r.o. |
 
@@ -78,6 +78,33 @@
 - Kompletní historie: hovory, e-maily, schůzky, poznámky, nabídky, dokumenty.
 - Každý zákazník má přiděleného obchodníka; možnost předat zákazníka i s historií.
 - Import stávajících dat z Excelu/CSV.
+
+### 6.1.1 Obohacení dat z Merk.cz (NÁVRH – čeká na OK, Q25–Q27)
+Firma má přístup k API Merk.cz. Návrh, jak ho využít (rozsah ověřím v dokumentaci Merku a podle vašeho tarifu):
+- **Založení firmy podle IČO:** ARES (oficiální, zdarma) + Merk doplní, co ARES nemá: kontakty firmy
+  (telefon, e-mail, web), velikost (počet zaměstnanců, obrat v pásmu), obor, osoby a jejich role.
+  U každého údaje se ukládá zdroj a datum (ARES / Merk / ručně); ručně opravený údaj se nepřepisuje.
+- **Propojení firem (5.1):** vazby osob a firem z Merku (stejný jednatel nebo vlastník, skupina firem)
+  → „Související firmy“ na kartě zákazníka, včetně toho, kdo z kolegů je obsluhuje.
+- **Telco potenciál:** z počtu zaměstnanců (a vozového parku, pokud ho Merk v tarifu poskytuje) odhad počtu SIM
+  → vstup pro upsell tipy (6.5) a později lead scoring (B4).
+- **Hledání nových zákazníků:** filtr podle oboru, kraje/okresu a velikosti → seznam firem → vybrané jedním klikem
+  jako leady do pipeline s přiřazeným obchodníkem. Firmy, které už v mtSALES jsou (i u kolegů), se označí.
+- **Hlídání změn:** pravidelná aktualizace (návrh 1× měsíčně u aktivních zákazníků) a upozornění obchodníkovi
+  na důležitou změnu: insolvence, likvidace, změna jednatele nebo sídla.
+- **Technicky:** vyměnitelný adaptér `CompanyDataProvider` (ARES, Merk); odpovědi se ukládají a znovu se
+  nedotazují zbytečně (šetří kredity / limity tarifu). API klíč jen v proměnných prostředí serveru.
+- **GDPR:** údaje o osobách pocházejí z veřejných rejstříků; kontakty se používají pro B2B obchod (oprávněný zájem),
+  u kontaktu je vidět zdroj.
+- **Dopad:**
+  - DB: nové sloupce u firem (velikost, zaměstnanci, obrat, web, zdroj údajů), tabulka uložených odpovědí
+    a změn, rozšíření `company_links`.
+  - Moduly: `customers` (obohacení při založení), nový modul `prospecting` (hledání firem), `retention`
+    (hlídání změn, fáze 2).
+  - Odhad: obohacení a propojení +2–3 dny ke kroku 1b; hledání nových zákazníků +3–4 dny (samostatný krok 1b+);
+    hlídání změn ve fázi 2 +1–2 dny.
+  - Potřeba: API klíč (zadá se přes zabezpečený formulář, ne do chatu), povolení přístupu na api.merk.cz
+    v prostředí vývoje, informace o tarifu (co obsahuje a kolik dotazů měsíčně).
 
 ### 6.2 Evidence služeb zákazníka (telco)
 - Každé číslo/SIM: tarif, uživatel, cena, operátor, datum konce závazku.
@@ -327,6 +354,9 @@ Patří do **fáze 3**, kterou to zvětší odhadem o třetinu.
 | Q22 | Automatické follow-upy a připomínky (6.7.1)? | Ano, výchozí automatické odeslání, u šablony lze přepnout na koncept. |
 | Q23 | SMS připomínky zákazníkům? | Ano. |
 | Q24 | WhatsApp Business připomínky (6.7.2), SMS jako záloha? | Požadavek zadán, návrh v 6.7.2 čeká na OK. |
+| Q25 | Merk.cz: jaký máte tarif – které údaje obsahuje (kontakty, finance, vazby, vozidla, hledání, hlídání) a limit dotazů? | – |
+| Q26 | Merk.cz: chcete v aplikaci hledání nových firem (prospecting)? Kdo ho smí používat? | – |
+| Q27 | Merk.cz: zařadit obohacení dat a propojení do kroku 1b? | – |
 
 ## 10. Podklady od zadavatele
 
@@ -350,6 +380,7 @@ Všechny podklady (ceníky, vzory, provize, TV programy, loga, manuály, reporty
 | Datum | Verze | Změna |
 |---|---|---|
 | 2026-11-23 | 0.1 | Výchozí zadání |
+| 2026-11-23 | 0.5 | Návrh napojení na Merk.cz (6.1.1) – obohacení firem, propojení, hledání nových zákazníků, hlídání změn |
 | 2026-11-23 | 0.4 | Schváleny Q18–Q23: pravidla disciplíny, večerní přehled 17:00, architektura, automatické follow-upy, SMS připomínky; požadavek na WhatsApp Business (6.7.2) |
 | 2026-11-23 | 0.3 | Vlastní přihlášení pro všechny, ceny viditelné i u firem kolegů, ranní + večerní přehled (6.4.2), aktivita Doporučení (6.4.3), návrh automatických follow-upů a připomínek (6.7.1), klidové víkendy a svátky, automatická cloudová záloha vytěžování |
 | 2026-11-23 | 0.2 | Odpovědi na Q1–Q13, viditelnost firem (5.1), návrh pravidel disciplíny (6.4.1), ceník (6.14), start od nuly (6.15), podklady, úkoly pro zadavatele |
