@@ -1,0 +1,51 @@
+# Vývoj:        docker compose -f infra/docker-compose.yml up -d postgres
+# Celá aplikace: docker compose -f infra/docker-compose.yml --profile app up -d --build  → http://localhost:8080
+name: mtsales
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: mtsales
+      POSTGRES_PASSWORD: mtsales
+      POSTGRES_DB: mtsales
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./postgres-init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mtsales"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  api:
+    profiles: [app]
+    build:
+      context: ..
+      dockerfile: apps/api/Dockerfile
+    env_file: ../.env
+    environment:
+      DATABASE_URL: postgresql://mtsales:mtsales@postgres:5432/mtsales
+      APP_ORIGINS: http://localhost:8080
+      HOST: 0.0.0.0
+      NODE_ENV: production
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  web:
+    profiles: [app]
+    build:
+      context: ..
+      dockerfile: infra/web.Dockerfile
+    environment:
+      SITE_ADDRESS: ":8080"
+    ports:
+      - "8080:8080"
+    depends_on:
+      - api
+
+volumes:
+  pgdata:

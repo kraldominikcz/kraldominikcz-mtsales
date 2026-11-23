@@ -37,7 +37,7 @@ aplikace běží dál, jen vytěžování čeká ve frontě.
 | Monorepo | **pnpm workspaces + Turborepo** | rychlé, sdílené typy mezi appkou a API, cache buildů |
 | Jazyk | **TypeScript** (strict) všude | jeden jazyk, typová kontrola napříč klientem i serverem |
 | Klient | **Expo SDK + Expo Router** (iOS + web z jednoho kódu) | dle zadání; nativní moduly přes Expo Modules API |
-| UI | React Native + **Tamagui** nebo **NativeWind** (rozhodnu v 1. fázi prototypem) | sdílené komponenty pro iOS i web, responzivní |
+| UI | React Native + **vlastní malá sada komponent** (`apps/app/src/ui`) | bez další knihovny; stačí pro formuláře a seznamy, snadno se přebarví podle firemní identity (ADR A9) |
 | Data na klientu | **TanStack Query** + tRPC klient | cache, offline-tolerantní čtení, automatické obnovování |
 | API | **Fastify + tRPC**, validace **Zod** | end-to-end typy bez generování kódu; Fastify pro REST webhooky |
 | DB | **PostgreSQL 16** | relační data, fulltext, JSONB pro vytěžená data |
@@ -262,3 +262,5 @@ Na Mac Mini to jde pustit stejně.
 | A6 | 2026-11-23 | Automatická cloudová záloha vytěžování (Claude API) při výpadku Mac Mini | rozhodnuto (Q16), podmínka DPA |
 | A7 | 2026-11-23 | Pracovní kalendář ČR v `domain`; žádné notifikace o víkendech/svátcích | rozhodnuto (Q17) |
 | A8 | 2026-11-23 | Veškerá pošta přes M365 (schránky obchodníků + sdílená schránka), bez další e-mailové služby | schváleno |
+| A9 | 2026-11-23 | UI: vlastní komponenty místo Tamagui/NativeWind (méně závislostí, Expo SDK 58 kompatibilita) | rozhodnuto (1a) |
+| A10 | 2026-11-23 | Web jako statická SPA (Expo `web.output: single`) za Caddy na stejné doméně jako `/api` | rozhodnuto (1a) |

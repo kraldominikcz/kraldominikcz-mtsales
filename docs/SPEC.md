@@ -291,7 +291,7 @@ Patří do **fáze 3**, kterou to zvětší odhadem o třetinu.
 
 | # | Fáze | Obsah | Stav |
 |---|---|---|---|
-| 1 | Základ | přihlášení, role, zákazníci, ARES, evidence služeb, pipeline, úkoly, notifikace, volání | probíhá (1a) |
+| 1 | Základ | přihlášení, role, zákazníci, ARES, evidence služeb, pipeline, úkoly, notifikace, volání | probíhá – 1a hotovo, další 1b |
 | 2 | Retence | konce závazků + upsell tipy | čeká |
 | 3 | E-mail a nabídky | PDF, e-podpis | čeká |
 | 4 | Dokumenty | vytěžování, srovnávací kalkulačka | čeká |

@@ -50,6 +50,11 @@ Interní obchodní aplikace (lehké CRM) manageTOGETHER s.r.o. pro iOS a web. U�
 - Integrační testy API běží proti reálnému PostgreSQL (`DATABASE_URL_TEST`).
 - Před commitem: `pnpm typecheck && pnpm test`.
 
+## Prostředí
+- Expo SDK 58, React Native 0.88, React 19, TypeScript 6 (výchozí `types` je prázdné → `"types": ["node"]` v tsconfig).
+- Verze Expo balíčků ber z `node_modules/expo/bundledNativeModules.json` (`npx expo install` potřebuje servery Expo).
+- Trasy aplikace jsou v `apps/app/src/app/` (Expo Router), ostatní kód mimo tuto složku.
+
 ## Git
 - Malé commity s jasným popisem v češtině, prefix podle typu: `feat:`, `fix:`, `docs:`, `test:`, `chore:`, `refactor:`.
 - Vývojová větev: `claude/mtsales-app-setup-zwh5ok`. Pull request jen na výslovnou žádost.
@@ -57,9 +62,10 @@ Interní obchodní aplikace (lehké CRM) manageTOGETHER s.r.o. pro iOS a web. U�
 ## Příkazy
 ```bash
 pnpm install                 # závislosti
-docker compose -f infra/docker-compose.yml up -d   # Postgres + Mailpit pro vývoj
+docker compose -f infra/docker-compose.yml up -d postgres   # PostgreSQL pro vývoj (+ testovací DB)
 pnpm db:migrate              # aplikovat migrace
 pnpm db:seed                 # první manažerský účet (viz .env.example)
-pnpm dev                     # API + aplikace (web)
+pnpm dev:api                 # API (port 3000)
+pnpm dev:app                 # Expo (w = web, QR = iPhone v Expo Go)
 pnpm typecheck && pnpm test  # kontrola
 ```
