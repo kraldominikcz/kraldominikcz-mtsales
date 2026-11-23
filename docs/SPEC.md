@@ -5,8 +5,8 @@
 
 | | |
 |---|---|
-| Verze specifikace | 0.3 (přihlášení, přehledy, klidové dny, záložní AI) |
-| Stav | Čeká na schválení architektury a návrhu pravidel disciplíny (6.4.1) |
+| Verze specifikace | 0.4 (schváleno, začíná vývoj fáze 1) |
+| Stav | Schváleno – architektura, pravidla disciplíny, automatické follow-upy |
 | Vlastník | manageTOGETHER s.r.o. |
 
 ## 1. Kontext
@@ -103,7 +103,7 @@
   až od dalšího pracovního dne.
 
 ### 6.4.2 Ranní a večerní přehled (Q17)
-Každý pracovní den dvakrát – **ráno v 9:00** a **večer v 17:00** (čas večerního přehledu je návrh, Q19) –
+Každý pracovní den dvakrát – **ráno v 9:00** a **večer v 17:00** (Q19) –
 přijde každému obchodníkovi (i manažerům) push + e-mail:
 - **Rozpracovanost obchodních případů:** počet a hodnota otevřených obchodů podle fáze, obchody bez dalšího kroku,
   obchody bez aktivity déle než X dní, co se dnes posunulo / vyhrálo / prohrálo.
@@ -118,7 +118,7 @@ přijde každému obchodníkovi (i manažerům) push + e-mail:
   **lead v pipeline** u doporučené firmy (načtené z ARES) se zdrojem „doporučení od …“.
 - Počítá se v přehledech a reportech (kolik doporučení kdo získal a kolik z nich se proměnilo v obchod).
 
-### 6.4.1 Disciplína aktivit – „přirozený tlak“ (NÁVRH, čeká na schválení – Q18)
+### 6.4.1 Disciplína aktivit – „přirozený tlak“ (schváleno – Q18)
 Cíl: obchodníci (včetně manažerů) plní aktivity a follow-upy, protože jim to aplikace usnadňuje
 a protože jsou výsledky vidět, ne kvůli ručnímu kontrolování.
 
@@ -173,7 +173,7 @@ O víkendech a svátcích se neposílá nic (viz 6.4).
   i v Outlooku. Systémové e-maily (přehledy, upozornění pro tým) jdou ze sdílené schránky `mtsales@<doména>`,
   která licenci nepotřebuje. Žádná další e-mailová služba není potřeba.
 
-### 6.7.1 Automatické follow-upy a připomínky (NÁVRH, čeká na schválení – Q22)
+### 6.7.1 Automatické follow-upy a připomínky (schváleno – Q22)
 Nabídky i follow-upy se posílají **z aplikace**, follow-upy i **automaticky**.
 
 **Follow-up sekvence po odeslání nabídky** (šablony a časy nastavuje manažer, obchodník je může u konkrétní nabídky
@@ -185,13 +185,29 @@ upravit nebo pozastavit). Výchozí návrh:
 - Sekvence se **sama zastaví**, když zákazník odpoví (zachyceno přes M365), nabídku přijme/odmítne
   nebo obchodník změní stav.
 - Automatické e-maily vypadají jako běžný e-mail obchodníka (jeho podpis, jeho schránka), ne jako hromadná rozesílka.
-- Režim pro každou šablonu: **odeslat automaticky** nebo **připravit koncept ke schválení** (obchodník jen klikne „Odeslat“).
+- Režim pro každou šablonu: **odeslat automaticky** (výchozí, Q22) nebo **připravit koncept ke schválení** (obchodník jen klikne „Odeslat“).
 
 **Připomínky hovorů a schůzek:**
 - **Obchodník:** push + e-mail před naplánovaným hovorem/schůzkou (výchozí 15 min před, nastavitelné).
 - **Zákazník:** při naplánování hovoru/schůzky dostane **pozvánku do kalendáře** (Outlook/Google/Apple ji umí přijmout)
-  a **připomínkový e-mail** (výchozí den předem). Volitelně **SMS připomínka** přes českou SMS bránu (Q23).
+  a **připomínkový e-mail** (výchozí den předem).
+- **Zpráva na telefon (Q23, Q24):** pokud má zákazník **WhatsApp**, přijde připomínka přes **WhatsApp Business**,
+  jinak **SMS**. Viz 6.7.2.
 - Zákazník může v připomínce kliknout „Potvrdit / Přeplánovat“. Odpověď se zapíše do historie a upozorní obchodníka.
+
+### 6.7.2 WhatsApp Business a SMS (NÁVRH – čeká na OK, Q24)
+- Pořadí: **WhatsApp → když doručení selže (zákazník WhatsApp nemá) → SMS**. Aplikace si u kontaktu zapamatuje,
+  který kanál funguje, a příště ho použije rovnou.
+- WhatsApp Business Platform (oficiální API od Meta): zprávy, které začíná firma, musí být **předem schválené šablony**
+  (např. „Dobrý den, připomínáme hovor s {obchodník} zítra v {čas}. Potvrdit / Přeplánovat“). Platí se za zprávu.
+- **Souhlas zákazníka:** WhatsApp vyžaduje souhlas se zasíláním zpráv. U kontaktu bude volba
+  „Souhlasí s připomínkami přes WhatsApp/SMS“; bez souhlasu jde jen e-mail.
+- Zprávy obsahují jen nezbytné údaje (jméno obchodníka, datum, čas), žádné ceny ani obsah nabídek.
+- Návrh poskytovatele: jeden poskytovatel pro **WhatsApp i SMS s automatickým přepnutím**, což je jednodušší.
+  Alternativa je přímé napojení na Meta + česká SMS brána. Rozhodne se ve fázi 3, v kódu bude vyměnitelný adaptér.
+- **Dopad:** modul `automations` + nový adaptér `messaging` (WhatsApp, SMS, přepnutí), u kontaktu souhlas
+  a preferovaný kanál, tabulka odeslaných zpráv se stavem doručení. Fáze 3, odhadem +2–3 dny práce.
+- **Úkol pro zadavatele:** ověření firmy v Meta Business (Meta Business Manager), telefonní číslo pro WhatsApp Business.
 
 **Pravidla pro zákazníky:**
 - Automatické e-maily a připomínky zákazníkům chodí **jen v pracovní dny v pracovní době** (8–17 h),
@@ -275,7 +291,7 @@ Patří do **fáze 3**, kterou to zvětší odhadem o třetinu.
 
 | # | Fáze | Obsah | Stav |
 |---|---|---|---|
-| 1 | Základ | přihlášení, role, zákazníci, ARES, evidence služeb, pipeline, úkoly, notifikace, volání | čeká |
+| 1 | Základ | přihlášení, role, zákazníci, ARES, evidence služeb, pipeline, úkoly, notifikace, volání | probíhá (1a) |
 | 2 | Retence | konce závazků + upsell tipy | čeká |
 | 3 | E-mail a nabídky | PDF, e-podpis | čeká |
 | 4 | Dokumenty | vytěžování, srovnávací kalkulačka | čeká |
@@ -304,12 +320,13 @@ Patří do **fáze 3**, kterou to zvětší odhadem o třetinu.
 | Q15 | Co přesně vidí obchodník u firmy kolegy? | Kartu, kontakty, propojení, vlastníka, služby **včetně cen**, poslední aktivitu. |
 | Q16 | Záloha lokálního vytěžování? | Když Mac Mini neběží, automaticky cloud. |
 | Q17 | Pracovní dny? | Eskalace po 2 dnech; přehled ráno i večer (rozpracovanost + počty aktivit); víkendy a svátky bez notifikací. |
-| Q18 | Schvaluješ pravidla disciplíny 6.4.1? | – |
-| Q19 | V kolik posílat večerní přehled? (návrh 17:00) | – |
+| Q18 | Schvaluješ pravidla disciplíny 6.4.1? | Ano. |
+| Q19 | V kolik posílat večerní přehled? | 17:00. |
 | Q20 | E-mail pro lidi bez M365? | Dokoupit licenci (návrh Business Basic, minimum Exchange Online Plan 1). |
-| Q21 | Schvaluješ architekturu (`ARCHITECTURE.md`)? | – |
-| Q22 | Schvaluješ automatické follow-upy a připomínky (6.7.1)? Posílat automaticky, nebo jako koncept ke schválení? | – |
-| Q23 | Chcete i SMS připomínky zákazníkům (placené za SMS)? | – |
+| Q21 | Schvaluješ architekturu (`ARCHITECTURE.md`)? | Ano. |
+| Q22 | Automatické follow-upy a připomínky (6.7.1)? | Ano, výchozí automatické odeslání, u šablony lze přepnout na koncept. |
+| Q23 | SMS připomínky zákazníkům? | Ano. |
+| Q24 | WhatsApp Business připomínky (6.7.2), SMS jako záloha? | Požadavek zadán, návrh v 6.7.2 čeká na OK. |
 
 ## 10. Podklady od zadavatele
 
@@ -323,6 +340,7 @@ Všechny podklady (ceníky, vzory, provize, TV programy, loga, manuály, reporty
 | Ověřit a zaregistrovat doménu | před fází 3 (e-mail) | návrh v Q2 |
 | Microsoft 365: registrace aplikace v Entra ID (s pomocí Claude) | fáze 3 (e-mail) | potřeba admin účet M365 |
 | Dokoupit M365 licence lidem bez schránky (Q20) | před fází 3 | Business Basic nebo Exchange Online Plan 1 |
+| Ověření firmy v Meta Business + číslo pro WhatsApp Business | před fází 3 | ověření může trvat několik dní |
 | Účet Hetzner Cloud (firemní) | fáze 7, ideálně dřív kvůli testovacímu prostředí | |
 | Apple Developer Program – organizace (99 USD/rok) | před TestFlightem (fáze 7) | vyžaduje **D-U-N-S číslo** firmy; vyřízení trvá dny až týdny, začít s předstihem |
 | Nahrát podklady do `podklady/` | průběžně, ceník a vzor nabídky před fází 3 | žádné osobní údaje zákazníků, jen anonymizované vzory |
@@ -332,5 +350,6 @@ Všechny podklady (ceníky, vzory, provize, TV programy, loga, manuály, reporty
 | Datum | Verze | Změna |
 |---|---|---|
 | 2026-11-23 | 0.1 | Výchozí zadání |
+| 2026-11-23 | 0.4 | Schváleny Q18–Q23: pravidla disciplíny, večerní přehled 17:00, architektura, automatické follow-upy, SMS připomínky; požadavek na WhatsApp Business (6.7.2) |
 | 2026-11-23 | 0.3 | Vlastní přihlášení pro všechny, ceny viditelné i u firem kolegů, ranní + večerní přehled (6.4.2), aktivita Doporučení (6.4.3), návrh automatických follow-upů a připomínek (6.7.1), klidové víkendy a svátky, automatická cloudová záloha vytěžování |
 | 2026-11-23 | 0.2 | Odpovědi na Q1–Q13, viditelnost firem (5.1), návrh pravidel disciplíny (6.4.1), ceník (6.14), start od nuly (6.15), podklady, úkoly pro zadavatele |

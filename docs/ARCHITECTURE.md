@@ -1,6 +1,6 @@
 # mtSALES – architektura
 
-> Stav: **NÁVRH – čeká na schválení.** Po schválení se změny architektury zapisují sem
+> Stav: **SCHVÁLENO 2026-11-23.** Po schválení se změny architektury zapisují sem
 > a do sekce „Rozhodnutí“ na konci (ADR log).
 
 ## 1. Přehled
@@ -186,7 +186,8 @@ Pravidla:
   před odesláním ověří: přišla odpověď? změnil se stav nabídky? je pracovní den a pracovní doba? je kontakt odhlášený?
 - **Systémové e-maily** (přehledy, upozornění) ze sdílené schránky `mtsales@<doména>` (bez licence).
 - Limity M365 (cca 10 000 příjemců/den a 30 zpráv/min na schránku) jsou pro 8 lidí s velkou rezervou.
-- **SMS (volitelně, Q23):** adaptér `SmsProvider` pro českou SMS bránu.
+- **WhatsApp + SMS (Q23, Q24):** adaptér `MessagingProvider` (WhatsApp Business Platform → při nedoručení SMS),
+  stav doručení přes webhook `/hooks/messaging`, souhlas a preferovaný kanál u kontaktu.
 - Licence pro lidi bez schránky: Business Basic nebo Exchange Online Plan 1. Pro aplikaci stačí obojí.
 - Sledování otevření (volitelně): odkaz na nabídku přes aplikaci místo přílohy → záznam o otevření.
 
@@ -253,11 +254,11 @@ Na Mac Mini to jde pustit stejně.
 
 | # | Datum | Rozhodnutí | Stav |
 |---|---|---|---|
-| A1 | 2026-11-23 | Cloud EU (Hetzner) pro aplikaci, Mac Mini pro AI a zálohy | navrženo |
-| A2 | 2026-11-23 | Fastify + tRPC, Drizzle, pg-boss, Gotenberg | navrženo |
+| A1 | 2026-11-23 | Cloud EU (Hetzner) pro aplikaci, Mac Mini pro AI a zálohy | schváleno |
+| A2 | 2026-11-23 | Fastify + tRPC, Drizzle, pg-boss, Gotenberg | schváleno |
 | A3 | 2026-11-23 | ~~Přihlášení přes Microsoft Entra ID~~ → vlastní přihlášení + TOTP (Microsoft Authenticator) + Face ID; M365 jen pro poštu a kalendář | rozhodnuto (Q14) |
 | A4 | 2026-11-23 | Vlastní backoffice modul + CRM adaptér | rozhodnuto (Q1) |
 | A5 | 2026-11-23 | Lokální vytěžování (Ollama na Mac Mini), mimo Docker kvůli GPU | rozhodnuto (Q7) |
 | A6 | 2026-11-23 | Automatická cloudová záloha vytěžování (Claude API) při výpadku Mac Mini | rozhodnuto (Q16), podmínka DPA |
 | A7 | 2026-11-23 | Pracovní kalendář ČR v `domain`; žádné notifikace o víkendech/svátcích | rozhodnuto (Q17) |
-| A8 | 2026-11-23 | Veškerá pošta přes M365 (schránky obchodníků + sdílená schránka), bez další e-mailové služby | navrženo |
+| A8 | 2026-11-23 | Veškerá pošta přes M365 (schránky obchodníků + sdílená schránka), bez další e-mailové služby | schváleno |
