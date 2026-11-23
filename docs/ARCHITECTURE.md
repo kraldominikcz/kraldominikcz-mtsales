@@ -97,11 +97,12 @@ Každý modul (oblast ze SPEC) je samostatný celek:
 | `calls` | 1 | call_attempts (stav „čeká na zápis“) |
 | `tasks` | 1 | tasks, task_escalations |
 | `discipline` | 1 | activity_targets, discipline_scores (denní snímky) |
-| `notifications` | 1 | notifications, push_tokens, notification_prefs |
+| `notifications` | 1 | notifications, push_tokens, notification_prefs, digest_runs (ranní/večerní přehledy) |
 | `audit`, `gdpr` | 1 | audit_events |
 | `retention` | 2 | (úlohy nad services + tasks), upsell_rules |
 | `catalog` | 1/3 | price_lists (verze), products, tv_packages, tv_channels |
 | `email` | 3 | mailboxes, email_messages, email_templates |
+| `automations` | 3 | sequences, sequence_steps, sequence_enrollments, customer_reminders, opt_outs |
 | `offers` | 3 | offers, offer_versions, offer_items, signatures |
 | `documents`, `extraction` | 4 | documents, document_text, extraction_jobs, extraction_results |
 | `calculator` | 4 | comparisons, comparison_lines |
@@ -133,19 +134,22 @@ Pravidla:
 ### Klíčová pravidla v `packages/domain` (čisté funkce, unit testy)
 - `canMoveToStage(deal, activities, targetStage)` – zapsaná aktivita od posledního posunu, důvod u prohry.
 - `requiresNextStep(deal, tasks)` – otevřený obchod bez budoucího úkolu.
-- `escalationDue(task, now, calendar)` – 2 dny po termínu (pracovní dny dle Q17, české svátky).
+- `workCalendar` – pracovní dny ČR: víkendy + státní svátky včetně Velkého pátku a Velikonočního pondělí
+  (počítané z data Velikonoc). Používají ho eskalace, přehledy, notifikace i automatiky.
+- `escalationDue(task, now, calendar)` – 2 **pracovní** dny po termínu.
+- `canNotify(now, calendar)` – o víkendech a svátcích se neposílá nic; zákazníkům jen v pracovní době 8–17 h.
 - `disciplineScore(inputs)` – skóre 0–100 dle SPEC 6.4.1.
 - `retentionTaskDates(commitmentEnd)` – −6 / −3 / −1 měsíc (fáze 2).
 - `upsellHints(services)` – fáze 2. `commission(...)` – fáze 5 podle Excelu.
 
 ## 6. Přihlášení a bezpečnost
 
-**Doporučení: přihlášení účtem Microsoft 365 (Entra ID, OpenID Connect).**
-- 2FA zajistí přímo Microsoft přes **Microsoft Authenticator** (vynutí se v Entra ID), bez vlastní správy hesel.
-- Stejné přihlášení dá aplikaci oprávnění k **Graph API** (odesílání a čtení pošty), což potřebujeme ve fázi 3.
-- Odchod zaměstnance = zablokování v M365 a přístup do mtSALES končí taky.
-- **Záloha:** pokud někdo nemá M365 licenci (Q14), vlastní přihlášení e-mail + heslo (argon2) + TOTP.
-  Microsoft Authenticator TOTP podporuje.
+**Vlastní přihlášení pro všechny** (M365 nemají všichni, Q14):
+- E-mail + heslo (argon2id) + **TOTP kód z Microsoft Authenticator** (povinný pro všechny). Při aktivaci účtu
+  uživatel naskenuje QR kód a dostane záložní jednorázové kódy.
+- Ochrana: omezení počtu pokusů, zablokování účtu manažerem, odhlášení všech zařízení.
+- **M365 se připojuje zvlášť** (ve fázi 3): obchodník jednou klikne „Připojit Outlook“ a aplikace získá oprávnění
+  k jeho schránce a kalendáři přes Graph API. Přihlášení do aplikace na M365 nezávisí.
 - **iPhone:** po prvním přihlášení se obnovovací token uloží do Keychain (`expo-secure-store`) a odemyká se
   **Face ID** (`expo-local-authentication`). Přístupový token je krátkodobý (15 min).
 - **Role a oprávnění:** RBAC v API. Každá procedura deklaruje oprávnění a filtr dat (vlastní / všechny /
@@ -176,6 +180,14 @@ Pravidla:
 - Příjem: Graph **change notifications** na schránku obchodníka → webhook `/hooks/msgraph` → stáhne zprávu
   → spáruje podle `conversationId` / hlavičky / e-mailu kontaktu → uloží do historie a upozorní obchodníka.
 - Pojistka: noční synchronizace (delta query), kdyby webhook vypadl.
+- **Kalendář:** naplánovaný hovor/schůzka se zákazníkem = událost v kalendáři obchodníka přes Graph
+  (`Calendars.ReadWrite`), zákazník dostane standardní pozvánku.
+- **Automatiky (modul `automations`):** sekvence follow-upů běží jako plánované úlohy v pg-boss. Každý krok
+  před odesláním ověří: přišla odpověď? změnil se stav nabídky? je pracovní den a pracovní doba? je kontakt odhlášený?
+- **Systémové e-maily** (přehledy, upozornění) ze sdílené schránky `mtsales@<doména>` (bez licence).
+- Limity M365 (cca 10 000 příjemců/den a 30 zpráv/min na schránku) jsou pro 8 lidí s velkou rezervou.
+- **SMS (volitelně, Q23):** adaptér `SmsProvider` pro českou SMS bránu.
+- Licence pro lidi bez schránky: Business Basic nebo Exchange Online Plan 1. Pro aplikaci stačí obojí.
 - Sledování otevření (volitelně): odkaz na nabídku přes aplikaci místo přílohy → záznam o otevření.
 
 ## 9. Lokální AI na Mac Mini (fáze 4)
@@ -187,7 +199,12 @@ Pravidla:
 - Model: vision/LLM do ~8 GB (např. třída Qwen2.5-VL 7B / Gemma 3), finální volba podle testu na vzorech
   z `podklady/08-vzory-vyuctovani`. 16 GB RAM je limit, proto běží vždy jen jedna úloha naráz.
 - Výsledek jde do stavu **„ke kontrole“**. Obchodník ho potvrdí nebo opraví, teprve pak se zapíše do `services`.
-- Záloha (Q16): fronta s čekáním, volitelně přepínač na cloudový engine (rozhraní `ExtractionEngine`).
+- **Automatická cloudová záloha (Q16):** `ai-worker` posílá každou minutu signál „žiju“. Když signál chybí
+  déle než 10 minut (nebo úloha čeká déle než 15 minut), API zpracuje úlohu přes cloudový engine:
+  Claude API (model `claude-opus-5-5`, strukturovaný výstup podle stejného Zod schématu).
+- Obě cesty implementují stejné rozhraní `ExtractionEngine`, výsledek jde vždy do stavu „ke kontrole“.
+- Každé odeslání dokumentu do cloudu se zapíše do audit logu. Manažer může zálohu vypnout.
+- Před zapnutím zálohy uzavřít **DPA** s Anthropic a ověřit podmínky uchování dat a lokalitu zpracování.
 
 ## 10. Hosting, nasazení, zálohy
 
@@ -238,6 +255,9 @@ Na Mac Mini to jde pustit stejně.
 |---|---|---|---|
 | A1 | 2026-11-23 | Cloud EU (Hetzner) pro aplikaci, Mac Mini pro AI a zálohy | navrženo |
 | A2 | 2026-11-23 | Fastify + tRPC, Drizzle, pg-boss, Gotenberg | navrženo |
-| A3 | 2026-11-23 | Přihlášení přes Microsoft Entra ID (záloha: vlastní TOTP) | navrženo, závisí na Q14 |
+| A3 | 2026-11-23 | ~~Přihlášení přes Microsoft Entra ID~~ → vlastní přihlášení + TOTP (Microsoft Authenticator) + Face ID; M365 jen pro poštu a kalendář | rozhodnuto (Q14) |
 | A4 | 2026-11-23 | Vlastní backoffice modul + CRM adaptér | rozhodnuto (Q1) |
 | A5 | 2026-11-23 | Lokální vytěžování (Ollama na Mac Mini), mimo Docker kvůli GPU | rozhodnuto (Q7) |
+| A6 | 2026-11-23 | Automatická cloudová záloha vytěžování (Claude API) při výpadku Mac Mini | rozhodnuto (Q16), podmínka DPA |
+| A7 | 2026-11-23 | Pracovní kalendář ČR v `domain`; žádné notifikace o víkendech/svátcích | rozhodnuto (Q17) |
+| A8 | 2026-11-23 | Veškerá pošta přes M365 (schránky obchodníků + sdílená schránka), bez další e-mailové služby | navrženo |

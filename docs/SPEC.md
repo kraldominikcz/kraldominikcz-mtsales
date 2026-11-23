@@ -5,7 +5,7 @@
 
 | | |
 |---|---|
-| Verze specifikace | 0.2 (zapracovány odpovědi na otevřené otázky) |
+| Verze specifikace | 0.3 (přihlášení, přehledy, klidové dny, záložní AI) |
 | Stav | Čeká na schválení architektury a návrhu pravidel disciplíny (6.4.1) |
 | Vlastník | manageTOGETHER s.r.o. |
 
@@ -58,7 +58,8 @@
 - Jeden uživatel může mít **více rolí**. Manažeři jsou zároveň obchodníci (Q13) a platí pro ně
   **stejná pravidla a stejný tlak** jako pro ostatní obchodníky (viz 6.4.1).
 - Každý uživatel má volitelně nastaveného **nadřízeného**, kterému chodí eskalace.
-- Přihlášení: e-mail + 2FA přes **Microsoft Authenticator**; na iPhonu po prvním přihlášení **Face ID** (Q12).
+- Přihlášení: **vlastní přihlášení aplikace pro všechny** – e-mail + heslo + 2FA kódem z **Microsoft Authenticator**
+  (TOTP); na iPhonu po prvním přihlášení **Face ID** (Q12). Účet M365 není podmínkou (Q14: nemají ho všichni).
 
 ### 5.1 Viditelnost firem mezi obchodníky (Q11)
 - Obchodníci **vidí i firmy, které řeší kolegové**, aby nevznikaly duplicity a dalo se navázat na souvislosti.
@@ -67,8 +68,8 @@
 - **Propojení firem** – aplikace co nejvíc vytěží data a ukáže souvislosti:
   stejný obor (CZ-NACE z ARES), stejná adresa/budova, stejné osoby (statutáři z ARES, kontaktní osoby
   se stejným jménem, e-mailem nebo telefonem), stejná e-mailová doména, stejná skupina/vlastník.
-- **Návrh (ke schválení, Q15):** u cizí firmy obchodník vidí kartu firmy, kontakty, propojení, vlastníka,
-  typy služeb (bez cen) a datum poslední aktivity. Ceny, nabídky, obchody a poznámky vidí jen vlastník a manažeři.
+- **Rozhodnuto (Q15):** u cizí firmy obchodník vidí kartu firmy, kontakty, propojení, vlastníka,
+  **služby včetně cen** a datum poslední aktivity. Obchody, nabídky a poznámky vidí jen vlastník a manažeři.
 
 ## 6. Funkce
 
@@ -96,7 +97,26 @@
 - Eskalace: úkol X dní po termínu → upozornění manažerovi.
 - Ranní přehled dne pro každého obchodníka (push + e-mail).
 - Obchod nelze posunout do další fáze bez zapsané aktivity.
-- **Rozhodnuto (Q11):** eskalace na manažera po **2 dnech** po termínu; ranní přehled v **9:00**.
+- **Rozhodnuto (Q11, Q17):** eskalace na nadřízeného po **2 pracovních dnech** po termínu.
+- **Víkendy a státní svátky ČR: žádné notifikace** (push ani e-mail). Co se o víkendu stane (např. nezapsaný
+  hovor), objeví se v ranním přehledu nejbližšího pracovního dne. Termíny na víkend se počítají jako po termínu
+  až od dalšího pracovního dne.
+
+### 6.4.2 Ranní a večerní přehled (Q17)
+Každý pracovní den dvakrát – **ráno v 9:00** a **večer v 17:00** (čas večerního přehledu je návrh, Q19) –
+přijde každému obchodníkovi (i manažerům) push + e-mail:
+- **Rozpracovanost obchodních případů:** počet a hodnota otevřených obchodů podle fáze, obchody bez dalšího kroku,
+  obchody bez aktivity déle než X dní, co se dnes posunulo / vyhrálo / prohrálo.
+- **Počty aktivit** (den / týden / proti týdennímu cíli): telefonáty, schůzky, vytvořené a odeslané nabídky,
+  e-maily, **získaná doporučení** a další typy aktivit.
+- **Úkoly:** ráno plán dne a co propadlo; večer co zůstalo nesplněné a nezapsané hovory/schůzky.
+- Skóre disciplíny (6.4.1).
+- Manažeři navíc dostanou **týmovou verzi** (stejné údaje za každého člena týmu).
+
+### 6.4.3 Získané doporučení (nový typ aktivity)
+- Aktivita „Doporučení“ se zapisuje u firmy/kontaktu, který doporučil. Jedním klikem z ní vznikne
+  **lead v pipeline** u doporučené firmy (načtené z ARES) se zdrojem „doporučení od …“.
+- Počítá se v přehledech a reportech (kolik doporučení kdo získal a kolik z nich se proměnilo v obchod).
 
 ### 6.4.1 Disciplína aktivit – „přirozený tlak“ (NÁVRH, čeká na schválení – Q18)
 Cíl: obchodníci (včetně manažerů) plní aktivity a follow-upy, protože jim to aplikace usnadňuje
@@ -117,13 +137,14 @@ a protože jsou výsledky vidět, ne kvůli ručnímu kontrolování.
 7. **Skóre disciplíny 0–100** pro každého (podíl obchodů s naplánovaným krokem, úkoly po termínu,
    nezapsané hovory, plnění týdenního cíle aktivit). Skóre **vidí celý tým**, manažery nevyjímaje.
 8. **Týdenní cíle aktivit** (hovory, schůzky, nabídky) pro každého, nastavuje manažer. V aplikaci je ukazatel plnění.
-9. **Ranní přehled v 9:00** (push + e-mail): dnešní plán, co včera propadlo, aktuální skóre.
-10. **Připomínka v 16:30**: nezapsané hovory a schůzky z dneška.
-11. **Eskalace po 2 dnech** jde nadřízenému. Pokud nadřízeného nemá (nebo je to manažer sám),
+9. **Ranní přehled v 9:00 a večerní přehled** (push + e-mail), obsah viz 6.4.2.
+10. Nezapsané hovory a schůzky z dneška jsou ve večerním přehledu (samostatná připomínka 16:30 odpadá).
+11. **Eskalace po 2 pracovních dnech** jde nadřízenému. Pokud nadřízeného nemá (nebo je to manažer sám),
     jde ostatním manažerům, takže nikdo eskalaci neunikne.
 12. **Týdenní souhrn týmu** (pondělí ráno) všem: skóre disciplíny a aktivity každého. Je to základ žebříčku z backlogu (B5).
 
 Vše je nastavitelné manažerem (prahy, časy, cíle, zapnutí/vypnutí pravidel 6–12).
+O víkendech a svátcích se neposílá nic (viz 6.4).
 
 ### 6.5 Retence podle konce závazků
 - Automatické úkoly 6, 3 a 1 měsíc před koncem závazku.
@@ -146,6 +167,41 @@ Vše je nastavitelné manažerem (prahy, časy, cíle, zapnutí/vypnutí pravide
 - **Rozhodnuto (Q2):** napojení přes **Microsoft Graph API**. E-mail odchází ze skutečné schránky obchodníka
   (je vidět i v jeho Outlooku v Odeslaných), odpovědi zachytí Graph change notifications (webhook)
   a spárují se podle vlákna (conversationId) a interní hlavičky s ID nabídky.
+- Obchodníci **bez M365 schránky** (Q14): dokoupí se licence. Návrh **Microsoft 365 Business Basic**
+  (schránka + Teams + OneDrive), minimum **Exchange Online Plan 1** (jen schránka). Pro aplikaci stačí obojí (Q20).
+- Všechny e-maily zákazníkům jdou ze **schránky obchodníka přes M365**. Odpovědi tak chodí jemu a vše je
+  i v Outlooku. Systémové e-maily (přehledy, upozornění pro tým) jdou ze sdílené schránky `mtsales@<doména>`,
+  která licenci nepotřebuje. Žádná další e-mailová služba není potřeba.
+
+### 6.7.1 Automatické follow-upy a připomínky (NÁVRH, čeká na schválení – Q22)
+Nabídky i follow-upy se posílají **z aplikace**, follow-upy i **automaticky**.
+
+**Follow-up sekvence po odeslání nabídky** (šablony a časy nastavuje manažer, obchodník je může u konkrétní nabídky
+upravit nebo pozastavit). Výchozí návrh:
+1. Den 0: odeslání nabídky ze schránky obchodníka.
+2. +3 pracovní dny bez odpovědi: automatický e-mail „Dostal jste naši nabídku?“.
+3. +5 pracovních dní: úkol pro obchodníka „Zavolat k nabídce“ (s připomínkou).
+4. +10 pracovních dní: druhý automatický e-mail a pak úkol „Rozhodnout: pokračovat / prohráno“.
+- Sekvence se **sama zastaví**, když zákazník odpoví (zachyceno přes M365), nabídku přijme/odmítne
+  nebo obchodník změní stav.
+- Automatické e-maily vypadají jako běžný e-mail obchodníka (jeho podpis, jeho schránka), ne jako hromadná rozesílka.
+- Režim pro každou šablonu: **odeslat automaticky** nebo **připravit koncept ke schválení** (obchodník jen klikne „Odeslat“).
+
+**Připomínky hovorů a schůzek:**
+- **Obchodník:** push + e-mail před naplánovaným hovorem/schůzkou (výchozí 15 min před, nastavitelné).
+- **Zákazník:** při naplánování hovoru/schůzky dostane **pozvánku do kalendáře** (Outlook/Google/Apple ji umí přijmout)
+  a **připomínkový e-mail** (výchozí den předem). Volitelně **SMS připomínka** přes českou SMS bránu (Q23).
+- Zákazník může v připomínce kliknout „Potvrdit / Přeplánovat“. Odpověď se zapíše do historie a upozorní obchodníka.
+
+**Pravidla pro zákazníky:**
+- Automatické e-maily a připomínky zákazníkům chodí **jen v pracovní dny v pracovní době** (8–17 h),
+  nikdy o víkendech a svátcích.
+- Automatické e-maily obsahují odkaz „Nepřeji si další připomínky“ (GDPR). Kontakt je pak z automatik vyřazen
+  a obchodník dostane upozornění.
+
+**Dopad:** modul `email` + nový modul `automations` (sekvence, kroky, zařazení nabídek do sekvence),
+`tasks`, `notifications`, kalendář přes M365 (Graph Calendar). DB: nové tabulky pro sekvence a připomínky.
+Patří do **fáze 3**, kterou to zvětší odhadem o třetinu.
 - Šablony e-mailů pro follow-upy.
 - Volitelně: sledování otevření nabídky.
 
@@ -169,10 +225,10 @@ Vše je nastavitelné manažerem (prahy, časy, cíle, zapnutí/vypnutí pravide
 - Nahrávání k zákazníkovi: PDF, skeny, fotky z iPhonu, Excel.
 - Vytěžení (OCR + AI): smlouvy, faktury, seznamy SIM, vyúčtování
   → strukturovaná data (čísla, tarify, ceny, konec závazku).
-- **Rozhodnuto (Q7):** vytěžování běží **lokálně na Mac Mini** (lokální OCR + lokální jazykový model),
-  dokumenty se neposílají do cizích AI služeb. „Možnost zálohy“ (upřesnit, Q16): když je Mac Mini
-  nedostupný, úlohy čekají ve frontě a zpracují se po jeho návratu; volitelně lze manažerem zapnout
-  záložní cloudové zpracování (ve výchozím stavu vypnuto).
+- **Rozhodnuto (Q7, Q16):** vytěžování běží **primárně lokálně na Mac Mini** (lokální OCR + lokální jazykový model).
+  **Když Mac Mini neběží, automaticky se zapne záložní zpracování v cloudu** (AI služba přes API), aby obchodník
+  nečekal. Které dokumenty šly do cloudu, se zapisuje do audit logu; manažer může zálohu vypnout.
+  Před spuštěním zálohy je potřeba smlouva o zpracování osobních údajů (DPA) s poskytovatelem AI.
 - Obchodník vytěžená data zkontroluje a potvrdí, než se uloží.
 - Fulltextové vyhledávání v dokumentech.
 
@@ -244,11 +300,16 @@ Vše je nastavitelné manažerem (prahy, časy, cíle, zapnutí/vypnutí pravide
 | Q11 | Eskalace, ranní přehled, viditelnost? | Eskalace po 2 dnech, přehled v 9:00, obchodníci vidí firmy kolegů + propojení. |
 | Q12 | Způsob 2FA? | Microsoft Authenticator, na iPhonu Face ID po prvním přihlášení. |
 | Q13 | Jsou manažeři i obchodníci? | Ano; stejný tlak na všechny. |
-| Q14 | Máte M365 tenant a mají všichni licenci (Exchange schránku)? | – |
-| Q15 | Co přesně vidí obchodník u firmy kolegy? (návrh v 5.1) | – |
-| Q16 | „Možnost zálohy“ u lokálního vytěžování: čekat ve frontě, nebo záložní cloud? | – |
-| Q17 | Počítají se „2 dny“ eskalace a ranní přehled jen v pracovní dny (bez svátků)? | – |
+| Q14 | Máte M365 tenant a mají všichni licenci (Exchange schránku)? | Ne všichni → vlastní přihlášení pro všechny. |
+| Q15 | Co přesně vidí obchodník u firmy kolegy? | Kartu, kontakty, propojení, vlastníka, služby **včetně cen**, poslední aktivitu. |
+| Q16 | Záloha lokálního vytěžování? | Když Mac Mini neběží, automaticky cloud. |
+| Q17 | Pracovní dny? | Eskalace po 2 dnech; přehled ráno i večer (rozpracovanost + počty aktivit); víkendy a svátky bez notifikací. |
 | Q18 | Schvaluješ pravidla disciplíny 6.4.1? | – |
+| Q19 | V kolik posílat večerní přehled? (návrh 17:00) | – |
+| Q20 | E-mail pro lidi bez M365? | Dokoupit licenci (návrh Business Basic, minimum Exchange Online Plan 1). |
+| Q21 | Schvaluješ architekturu (`ARCHITECTURE.md`)? | – |
+| Q22 | Schvaluješ automatické follow-upy a připomínky (6.7.1)? Posílat automaticky, nebo jako koncept ke schválení? | – |
+| Q23 | Chcete i SMS připomínky zákazníkům (placené za SMS)? | – |
 
 ## 10. Podklady od zadavatele
 
@@ -260,7 +321,8 @@ Všechny podklady (ceníky, vzory, provize, TV programy, loga, manuály, reporty
 | Úkol | Kdy je potřeba | Poznámka |
 |---|---|---|
 | Ověřit a zaregistrovat doménu | před fází 3 (e-mail) | návrh v Q2 |
-| Microsoft 365: registrace aplikace v Entra ID (s pomocí Claude) | fáze 1 (přihlášení) / 3 (e-mail) | potřeba admin účet M365 |
+| Microsoft 365: registrace aplikace v Entra ID (s pomocí Claude) | fáze 3 (e-mail) | potřeba admin účet M365 |
+| Dokoupit M365 licence lidem bez schránky (Q20) | před fází 3 | Business Basic nebo Exchange Online Plan 1 |
 | Účet Hetzner Cloud (firemní) | fáze 7, ideálně dřív kvůli testovacímu prostředí | |
 | Apple Developer Program – organizace (99 USD/rok) | před TestFlightem (fáze 7) | vyžaduje **D-U-N-S číslo** firmy; vyřízení trvá dny až týdny, začít s předstihem |
 | Nahrát podklady do `podklady/` | průběžně, ceník a vzor nabídky před fází 3 | žádné osobní údaje zákazníků, jen anonymizované vzory |
@@ -270,4 +332,5 @@ Všechny podklady (ceníky, vzory, provize, TV programy, loga, manuály, reporty
 | Datum | Verze | Změna |
 |---|---|---|
 | 2026-11-23 | 0.1 | Výchozí zadání |
+| 2026-11-23 | 0.3 | Vlastní přihlášení pro všechny, ceny viditelné i u firem kolegů, ranní + večerní přehled (6.4.2), aktivita Doporučení (6.4.3), návrh automatických follow-upů a připomínek (6.7.1), klidové víkendy a svátky, automatická cloudová záloha vytěžování |
 | 2026-11-23 | 0.2 | Odpovědi na Q1–Q13, viditelnost firem (5.1), návrh pravidel disciplíny (6.4.1), ceník (6.14), start od nuly (6.15), podklady, úkoly pro zadavatele |

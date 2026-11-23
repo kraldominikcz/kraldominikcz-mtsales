@@ -9,3 +9,4 @@ Formát podle [Keep a Changelog](https://keepachangelog.com/cs/1.1.0/), verzová
 - Odpovědi na otevřené otázky ve specifikaci (v0.2), návrh pravidel disciplíny aktivit.
 - Složka `podklady/` pro ceníky, vzory nabídek, provize, loga a další podklady.
 - Návrh architektury (`docs/ARCHITECTURE.md`) – čeká na schválení.
+- SPEC v0.3: vlastní přihlášení, ranní a večerní přehledy, aktivita Doporučení, klidové víkendy a svátky, automatická cloudová záloha vytěžování, návrh automatických follow-upů a připomínek.
