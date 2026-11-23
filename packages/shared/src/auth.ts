@@ -46,7 +46,7 @@ export const totpVerifyInput = z
     message: 'Zadejte buď kód z aplikace, nebo záložní kód',
   });
 
-export const refreshInput = z.object({ refreshToken: z.string().min(1).optional() }).optional();
+export const refreshInput = z.object({ refreshToken: z.string().min(1).optional() }).nullish();
 
 /** Výsledek prvního kroku přihlášení. */
 export type LoginResult =

@@ -5,10 +5,11 @@ import { createDb } from './client';
 
 export const MIGRATIONS_FOLDER = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../migrations');
 
-export async function runMigrations(url: string) {
+/** Složku lze přepsat proměnnou MIGRATIONS_DIR (např. v Docker image, kde je kód přibalený). */
+export async function runMigrations(url: string, folder = process.env.MIGRATIONS_DIR ?? MIGRATIONS_FOLDER) {
   const { db, close } = createDb(url, { max: 1 });
   try {
-    await migrate(db, { migrationsFolder: MIGRATIONS_FOLDER });
+    await migrate(db, { migrationsFolder: folder });
   } finally {
     await close();
   }

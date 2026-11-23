@@ -1,0 +1,36 @@
+{
+  "name": "@mtsales/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./router": "./src/router.ts"
+  },
+  "scripts": {
+    "dev": "tsx watch --env-file-if-exists=../../.env src/index.ts",
+    "start": "node dist/index.js",
+    "build": "tsup",
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "seed": "tsx --env-file-if-exists=../../.env src/scripts/seed.ts"
+  },
+  "dependencies": {
+    "@fastify/cookie": "^11.1.5",
+    "@fastify/cors": "^11.4.3",
+    "@fastify/rate-limit": "^11.3.0",
+    "@mtsales/db": "workspace:*",
+    "@mtsales/domain": "workspace:*",
+    "@mtsales/shared": "workspace:*",
+    "@node-rs/argon2": "^2.2.2",
+    "@trpc/server": "^11.29.11",
+    "drizzle-orm": "^0.45.4",
+    "fastify": "^5.12.8",
+    "jose": "^6.2.18",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "tsup": "^9.0.0",
+    "tsx": "^4.23.15",
+    "vitest": "^5.1.1"
+  }
+}
