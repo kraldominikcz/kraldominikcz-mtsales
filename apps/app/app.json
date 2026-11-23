@@ -1,0 +1,41 @@
+{
+  "expo": {
+    "name": "mtSALES",
+    "slug": "mtsales",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "scheme": "mtsales",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "bundleIdentifier": "cz.managetogether.mtsales",
+      "supportsTablet": true,
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "package": "cz.managetogether.mtsales",
+      "adaptiveIcon": {
+        "backgroundColor": "#E6F4FE",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      }
+    },
+    "web": {
+      "output": "single",
+      "favicon": "./assets/favicon.png",
+      "name": "mtSALES",
+      "lang": "cs"
+    },
+    "plugins": [
+      "expo-router",
+      ["expo-secure-store", { "faceIDPermission": "mtSALES používá Face ID k odemčení aplikace." }],
+      ["expo-local-authentication", { "faceIDPermission": "mtSALES používá Face ID k odemčení aplikace." }]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
