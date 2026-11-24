@@ -5,7 +5,7 @@
 
 | | |
 |---|---|
-| Verze specifikace | 0.5 (návrh napojení na Merk.cz) |
+| Verze specifikace | 0.6 (varianta vlastní firemní databáze) |
 | Stav | Schváleno – architektura, pravidla disciplíny, automatické follow-upy |
 | Vlastník | manageTOGETHER s.r.o. |
 
@@ -105,6 +105,36 @@ Firma má přístup k API Merk.cz. Návrh, jak ho využít (rozsah ověřím v d
     hlídání změn ve fázi 2 +1–2 dny.
   - Potřeba: API klíč (zadá se přes zabezpečený formulář, ne do chatu), povolení přístupu na api.merk.cz
     v prostředí vývoje, informace o tarifu (co obsahuje a kolik dotazů měsíčně).
+
+### 6.1.2 Vlastní firemní databáze z veřejných zdrojů (NÁVRH – varianta k 6.1.1, čeká na OK, Q28–Q29)
+Místo (nebo vedle) Merku postavit vlastní databázi firem z otevřených dat státu. Data Merku se nekopírují
+(podmínky služby a ochrana databáze); vlastní databáze vzniká jen ze zdrojů, které jsou volně k použití.
+
+| Zdroj | Co dává | Využití v mtSALES |
+|---|---|---|
+| ARES (API, zdarma) | název, sídlo, právní forma, obor CZ-NACE, datum vzniku, stav | karta firmy podle IČO |
+| Veřejný rejstřík – otevřená data (justice.cz) | jednatelé, společníci, prokuristé, historie | propojení firem a osob, skupiny firem |
+| RES (ČSÚ) | kategorie počtu zaměstnanců, obor | velikost firmy → odhad počtu SIM, hledání firem |
+| Insolvenční rejstřík (ISIR) | insolvence | upozornění obchodníkovi, riziko |
+| Registr plátců DPH | spolehlivost plátce, bankovní účty | riziko |
+| Registr vozidel – otevřená data (ověřím rozsah) | vozidla firem | potenciál pro GPS / IoT SIM |
+| Sbírka listin | účetní závěrky (PDF, skeny) | obrat, zisk – vytěžení lokální AI (fáze 4) |
+| Weby firem | obecné kontakty (ústředna, info@), web | kontakty firmy – cíleně, ne hromadně |
+
+- **Kontakty na konkrétní lidi** (jména, přímé e-maily, mobily) ve veřejných rejstřících **nejsou**. Získávají se
+  z vlastní práce obchodníků, z webů firem, z vizitek (B2) a doporučení, případně z placené služby (Merk).
+- **Pravidla pro oslovení:** studené e-maily a obchodní hovory mají v ČR zvláštní pravidla (zákon č. 480/2004 Sb.,
+  zákon o elektronických komunikacích, GDPR – informační povinnost a právo vznést námitku). Doporučení:
+  krátká konzultace s právníkem / pověřencem před hromadným oslovováním.
+- **Dopad:**
+  - DB: nový modul `registry` – vlastní tabulky firem, osob a vazeb (miliony záznamů), pravidelné importy.
+  - Provoz: noční/týdenní stahování otevřených dat, místo na disku jednotky až desítky GB (cloud server).
+  - Odhad: základ (ARES + veřejný rejstřík + RES + ISIR + DPH, propojení, karta firmy) 2–3 týdny;
+    hledání nových zákazníků nad vlastní databází +1 týden; kontakty z webů firem +1–2 týdny;
+    obraty ze Sbírky listin pomocí AI +2–3 týdny (fáze 4).
+  - Údržba: státní zdroje občas mění formát → průběžná péče o importy.
+- **Doporučení:** vlastní databáze pro rejstříková data a propojení (zdarma, bez limitů) + Merk API jen tam,
+  kde přináší něco, co veřejné zdroje nemají (kontakty, odhady obratu) – pokud se vyplatí jeho cena.
 
 ### 6.2 Evidence služeb zákazníka (telco)
 - Každé číslo/SIM: tarif, uživatel, cena, operátor, datum konce závazku.
@@ -357,6 +387,8 @@ Patří do **fáze 3**, kterou to zvětší odhadem o třetinu.
 | Q25 | Merk.cz: jaký máte tarif – které údaje obsahuje (kontakty, finance, vazby, vozidla, hledání, hlídání) a limit dotazů? | – |
 | Q26 | Merk.cz: chcete v aplikaci hledání nových firem (prospecting)? Kdo ho smí používat? | – |
 | Q27 | Merk.cz: zařadit obohacení dat a propojení do kroku 1b? | – |
+| Q28 | Vlastní firemní databáze (6.1.2): stavět, a v jakém rozsahu? Zůstává Merk, nebo ho chcete nahradit? | – |
+| Q29 | Které funkce Merku dnes reálně používáte (hledání firem, kontakty, finance, hlídání, export)? | – |
 
 ## 10. Podklady od zadavatele
 
@@ -380,6 +412,7 @@ Všechny podklady (ceníky, vzory, provize, TV programy, loga, manuály, reporty
 | Datum | Verze | Změna |
 |---|---|---|
 | 2026-11-23 | 0.1 | Výchozí zadání |
+| 2026-11-24 | 0.6 | Návrh vlastní firemní databáze z veřejných zdrojů (6.1.2) jako varianta k Merku |
 | 2026-11-23 | 0.5 | Návrh napojení na Merk.cz (6.1.1) – obohacení firem, propojení, hledání nových zákazníků, hlídání změn |
 | 2026-11-23 | 0.4 | Schváleny Q18–Q23: pravidla disciplíny, večerní přehled 17:00, architektura, automatické follow-upy, SMS připomínky; požadavek na WhatsApp Business (6.7.2) |
 | 2026-11-23 | 0.3 | Vlastní přihlášení pro všechny, ceny viditelné i u firem kolegů, ranní + večerní přehled (6.4.2), aktivita Doporučení (6.4.3), návrh automatických follow-upů a připomínek (6.7.1), klidové víkendy a svátky, automatická cloudová záloha vytěžování |
